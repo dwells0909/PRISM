@@ -26,6 +26,16 @@
     return opts;
   }
 
+  const ROLE_OPTIONS = ['Account Manager', 'Socials', 'Copywriting', 'Graphics', 'Multimedia', 'Analysts'];
+
+  function roleOptions(){
+    let opts = '<option value="" disabled selected>Select a role</option>';
+    ROLE_OPTIONS.forEach(role=>{
+      opts += `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`;
+    });
+    return opts;
+  }
+
   // Paste your deployed Google Apps Script Web App URL here (ends in /exec).
   // See apps-script-backend.gs for the one-time setup steps.
   const API_URL = 'https://script.google.com/macros/s/AKfycbw0tnhUVq8RzdfOWAPexFEo1NG5GEj5lpCQruF8kIMyN-X9rabpLxjSY0qmvrV5_xhE/exec';
@@ -65,7 +75,7 @@
           <div class="eyebrow" style="margin-top:18px;">This is PRISM</div>
           <h1 class="title">Join the PRISMites</h1>
           <div class="rule"></div>
-          <p class="subtitle">Faculty-led, student-run. PRISM works with real clients &mdash; VT Undergraduate Admissions, Pamplin College of Business, First & Main, and more. Sign up below and we'll follow up by email.</p>
+          <p class="subtitle">Glad we caught you looking! Sign in below to let us know you attended this event.</p>
         </header>
 
         <div class="card">
@@ -106,12 +116,35 @@
               <div class="err-msg">Enter the event name.</div>
             </div>
 
+            <div class="field" data-field="role1">
+              <label for="f-role1">#1 Role Interested In</label>
+              <select id="f-role1">${roleOptions()}</select>
+              <div class="err-msg">Select your top role choice.</div>
+            </div>
+
+            <div class="field" data-field="role2">
+              <label for="f-role2">#2 Role Interested In</label>
+              <select id="f-role2">${roleOptions()}</select>
+              <div class="err-msg">Select a different role than your #1 choice.</div>
+            </div>
+
             <button type="submit" class="submit" id="submit-btn">Sign up</button>
           </form>
         </div>
-
+        <div class="shell">
+            <p class="subtitle subtitle-bottom" style="text-align:center;">Thank you for your interest in PRISM, VT's faculty-led, student-run marketing agency. For the latest recruitment campaign updates, be sure to follow our instagram which is linked below!</p> 
+        </div>
         <footer class="foot">
-          <div class="org-line">A Virginia Tech Pamplin College of Business Organization</div>
+        <div class="foot-links">
+            <a href="https://www.instagram.com/vtprism/" target="_blank" rel="noopener" class="social-icon" aria-label="PRISM on Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="20" height="20" rx="6" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor"/>
+              </svg>
+            </a>
+          </div>  
+        <div class="org-line">A Virginia Tech Pamplin College of Business Organization</div>
           
         </footer>
       </div>
@@ -143,6 +176,8 @@
       const gradYear = document.getElementById('f-gradyear').value;
       const eventChoice = eventSelect.value;
       const eventOther = otherInput.value.trim();
+      const role1 = document.getElementById('f-role1').value;
+      const role2 = document.getElementById('f-role2').value;
 
       const errors = {};
       if(!name) errors.name = true;
@@ -151,6 +186,9 @@
       if(!gradYear) errors.gradYear = true;
       if(!eventChoice) errors.event = true;
       if(eventChoice === 'Other' && !eventOther) errors.eventOther = true;
+      if(!role1) errors.role1 = true;
+      if(!role2) errors.role2 = true;
+      if(role1 && role2 && role1 === role2) errors.role2 = true;
 
       document.querySelectorAll('.field').forEach(f=>f.classList.remove('error'));
       Object.keys(errors).forEach(key=>{
@@ -170,6 +208,7 @@
         name, email, major,
         gradYear: gradYear,
         event: eventVal,
+        role1, role2,
         timestamp: new Date().toISOString()
       };
 
@@ -194,13 +233,22 @@
           <div class="icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 12L10 18L20 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <h2>You're in the spectrum</h2>
+          <h2>Thank you for your interest!</h2>
           <p>Thanks for signing up at ${escapeHtml(eventName)}. PRISM will be in touch by email soon.</p>
           <button id="again-btn">Add another signup</button>
         </div>
         <footer class="foot">
-          <div class="org-line">A Virginia Tech Pamplin College of Business Organization</div>
-          <a href="#dashboard">Team dashboard</a>
+        <div class="foot-links">
+            <a href="https://www.instagram.com/vtprism/" target="_blank" rel="noopener" class="social-icon" aria-label="PRISM on Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="20" height="20" rx="6" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor"/>
+              </svg>
+            </a>
+          </div>  
+        <div class="org-line">A Virginia Tech Pamplin College of Business Organization</div>
+          
         </footer>
       </div>
     `;
@@ -254,7 +302,7 @@
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>Name</th><th>Email</th><th>Major</th><th>Grad Year</th><th>Event</th><th>Timestamp</th></tr>
+            <tr><th>Name</th><th>Email</th><th>Major</th><th>Grad Year</th><th>Event</th><th>#1 Role</th><th>#2 Role</th><th>Timestamp</th></tr>
           </thead>
           <tbody id="rows"></tbody>
         </table>
@@ -270,7 +318,7 @@
 
       const tbody = document.getElementById('rows');
       if(rows.length === 0){
-        tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No submissions yet. Share the form link to start collecting signups.</td></tr>`;
+        tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No submissions yet. Share the form link to start collecting signups.</td></tr>`;
         return;
       }
       tbody.innerHTML = rows.map(r=>`
@@ -280,6 +328,8 @@
           <td>${escapeHtml(r.major)}</td>
           <td>${escapeHtml(r.gradYear)}</td>
           <td>${escapeHtml(r.event)}</td>
+          <td>${escapeHtml(r.role1 || '')}</td>
+          <td>${escapeHtml(r.role2 || '')}</td>
           <td class="ts">${new Date(r.timestamp).toLocaleString()}</td>
         </tr>
       `).join('');
@@ -290,11 +340,11 @@
   }
 
   function exportCsv(submissions){
-    const headers = ['Name','Email','Major','Graduation Year','Event','Timestamp'];
+    const headers = ['Name','Email','Major','Graduation Year','Event','#1 Role','#2 Role','Timestamp'];
     const lines = [headers.join(',')];
     submissions.forEach(r=>{
-      const row = [r.name, r.email, r.major, r.gradYear, r.event, r.timestamp]
-        .map(v => `"${String(v).replace(/"/g,'""')}"`);
+      const row = [r.name, r.email, r.major, r.gradYear, r.event, r.role1, r.role2, r.timestamp]
+        .map(v => `"${String(v || '').replace(/"/g,'""')}"`);
       lines.push(row.join(','));
     });
     const blob = new Blob([lines.join('\n')], {type:'text/csv'});
